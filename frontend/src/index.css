@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: 255 255 255;
+    --surface: 255 255 255;
+    --surface-2: 248 250 252;
+    --border: 226 232 240;
+    --text: 15 23 42;
+    --text-muted: 100 116 139;
+  }
+
+  .dark {
+    --bg: 8 10 16;
+    --surface: 15 18 27;
+    --surface-2: 20 24 35;
+    --border: 34 40 54;
+    --text: 237 240 247;
+    --text-muted: 148 160 181;
+  }
+
+  * {
+    @apply border-[rgb(var(--border))];
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Sticky navbar is 64px; keep anchored sections clear of it. */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-[rgb(var(--bg))] text-[rgb(var(--text))] antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* Respecting reduced-motion is not optional: vestibular disorders make large
+     parallax and drifting gradients genuinely unpleasant, not merely distracting. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-500 ring-offset-2 ring-offset-[rgb(var(--bg))];
+  }
+
+  ::selection {
+    @apply bg-accent-500/25;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+
+  .muted {
+    @apply text-[rgb(var(--text-muted))];
+  }
+
+  .surface {
+    @apply border border-[rgb(var(--border))] bg-[rgb(var(--surface))];
+  }
+
+  /* Frosted panel used by the navbar and overlay cards. The saturate boost stops
+     colour behind the blur from going flat and grey. */
+  .glass {
+    @apply border border-black/[0.06] bg-white/70 backdrop-blur-xl backdrop-saturate-150
+           dark:border-white/10 dark:bg-white/[0.04];
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-accent-600 dark:text-accent-400;
+  }
+
+  .heading-xl {
+    @apply text-4xl font-semibold leading-[1.08] tracking-[-0.03em] sm:text-5xl lg:text-[4.25rem];
+  }
+
+  .heading-lg {
+    @apply text-3xl font-semibold leading-[1.12] tracking-[-0.025em] sm:text-4xl lg:text-5xl;
+  }
+
+  .heading-md {
+    @apply text-2xl font-semibold tracking-[-0.02em] sm:text-3xl;
+  }
+
+  .lede {
+    @apply text-base leading-relaxed text-[rgb(var(--text-muted))] sm:text-lg;
+  }
+
+  .card {
+    @apply rounded-2xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] shadow-card;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl text-sm font-medium
+           transition-[transform,box-shadow,background-color,border-color,color] duration-200
+           will-change-transform active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent-600 px-5 py-2.5 text-white shadow-[0_1px_2px_rgba(16,24,40,0.08)]
+           hover:-translate-y-0.5 hover:bg-accent-500 hover:shadow-glow;
+  }
+
+  .btn-secondary {
+    @apply btn border border-[rgb(var(--border))] bg-[rgb(var(--surface))] px-5 py-2.5
+           text-[rgb(var(--text))] hover:-translate-y-0.5 hover:border-accent-400/60 hover:shadow-card-hover;
+  }
+
+  .btn-ghost {
+    @apply btn px-3 py-2 text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--surface-2))]
+           hover:text-[rgb(var(--text))];
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))] px-3.5 py-2.5
+           text-sm text-[rgb(var(--text))] placeholder:text-[rgb(var(--text-muted))]
+           transition-colors focus:border-accent-500/60 focus:bg-[rgb(var(--surface))];
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium text-[rgb(var(--text-muted))];
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-[rgb(var(--border))]
+           bg-[rgb(var(--surface-2))] px-3 py-1 text-xs font-medium text-[rgb(var(--text-muted))];
+  }
+
+  /* Hairline that fades at both ends, to separate sections without a hard rule. */
+  .rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-[rgb(var(--border))] to-transparent;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-br from-[rgb(var(--text))] via-[rgb(var(--text))] to-accent-500
+           bg-clip-text text-transparent;
+  }
+
+  .mask-fade-x {
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, rgb(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+}

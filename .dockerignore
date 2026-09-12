@@ -1,0 +1,13 @@
+# Keep the Docker build context small and reproducible. Without this the whole frontend
+# node_modules tree and local build output get shipped to the daemon on every build.
+target/
+frontend/
+.git/
+.github/
+.idea/
+*.iml
+shots/
+README.md
+docker-compose.yml
+render.yaml
+*.log

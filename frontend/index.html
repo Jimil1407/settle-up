@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>SettleUp — Shared expenses that actually add up</title>
+    <meta
+      name="description"
+      content="Split expenses with flatmates and friends, then settle the whole group in the fewest possible payments. Correct to the last paisa."
+    />
+    <meta property="og:title" content="SettleUp — Shared expenses that actually add up" />
+    <meta
+      property="og:description"
+      content="Nets everyone out and collapses a tangle of IOUs into the fewest possible payments."
+    />
+    <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+
+    <script>
+      // Runs before first paint so a light-mode visitor never sees a dark flash.
+      (function () {
+        try {
+          var stored = localStorage.getItem('settleup.theme')
+          var dark = stored
+            ? stored === 'dark'
+            : !window.matchMedia('(prefers-color-scheme: light)').matches
+          document.documentElement.classList.toggle('dark', dark)
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

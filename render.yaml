@@ -1,0 +1,124 @@
+# Render Blueprint — deploys the whole stack from this one file.
+#
+#   settleup-api    Spring Boot API (Docker)
+#   settleup-db     PostgreSQL
+#   settleup-cache  Key Value (Redis)
+#   settleup-web    React static site on the CDN
+#
+# The frontend is a separate static site rather than being served by the API on purpose: static
+# sites are always-on and edge-cached, so the landing page loads instantly even while the free-tier
+# API instance is still waking up. Only the app behind sign-in pays the cold start.
+#
+# Blueprints do not support string interpolation, so anything that needs a scheme prepended
+# (VITE_API_HOST) is assembled in application code instead.
+
+services:
+  # ---------------------------------------------------------------- API
+  - type: web
+    name: settleup-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    # Render probes this until it returns 2xx before routing traffic to a new deploy. It touches
+    # the database, so an instance that cannot reach Postgres is never marked live.
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+
+      # Generated once by Render and then held constant. Never committed, and rotating it simply
+      # invalidates existing tokens.
+      - key: JWT_SECRET
+        generateValue: true
+
+      # Supplied as parts because Render emits a libpq-style postgres:// URL, which the JDBC
+      # driver will not accept as-is.
+      - key: DB_HOST
+        fromDatabase:
+          name: settleup-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: settleup-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: settleup-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: settleup-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: settleup-db
+          property: password
+
+      - key: REDIS_HOST
+        fromService:
+          type: keyvalue
+          name: settleup-cache
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: keyvalue
+          name: settleup-cache
+          property: port
+
+      # Deliberately not wired to the static site's hostname: that would make the two services
+      # reference each other and the Blueprint would fail to resolve the cycle. The wildcard gets
+      # the first deploy working; tighten it to the exact origin afterwards (see README).
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://*.onrender.com
+
+  # ---------------------------------------------------------------- Cache
+  - type: keyvalue
+    name: settleup-cache
+    plan: free
+    region: singapore
+    # Reachable only from inside the Render network. The cache holds idempotency keys and balance
+    # snapshots, so there is no reason to expose it publicly.
+    ipAllowList: []
+
+  # ---------------------------------------------------------------- Frontend
+  - type: web
+    name: settleup-web
+    runtime: static
+    buildCommand: npm ci && npm run build
+    # Relative to rootDir, so this resolves to frontend/dist.
+    staticPublishPath: ./dist
+    rootDir: frontend
+    autoDeployTrigger: commit
+    envVars:
+      # Baked into the bundle at build time; the client prepends https:// itself.
+      - key: VITE_API_HOST
+        fromService:
+          type: web
+          name: settleup-api
+          property: host
+    routes:
+      # Client-side routing: /app is a React route with no file behind it, so every unmatched
+      # path has to fall through to index.html. Render serves real files first, so this cannot
+      # shadow the built assets.
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+databases:
+  - name: settleup-db
+    databaseName: settleup
+    user: settleup
+    plan: free
+    region: singapore

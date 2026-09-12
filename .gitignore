@@ -1,0 +1,22 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Frontend
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+frontend/shots/
+
+# OS
+.DS_Store
+Thumbs.db

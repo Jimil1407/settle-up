@@ -1,0 +1,59 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: settleup
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/settleup}
+    username: ${DB_USER:settleup}
+    password: ${DB_PASSWORD:settleup}
+    hikari:
+      # The group lock serialises writers per group, so a handful of connections is plenty; an
+      # oversized pool would only queue work deeper inside the database.
+      maximum-pool-size: 20
+      pool-name: settleup-pool
+
+  sql:
+    init:
+      mode: always
+      platform: postgresql
+
+  jpa:
+    hibernate:
+      # The SQL scripts above own the schema. Hibernate only checks that the entities match it, so
+      # a mapping that has drifted from the real tables fails loudly at startup.
+      ddl-auto: validate
+    # Off by design: lazy loading inside a view renders is a classic source of surprise N+1
+    # queries and connections held far longer than intended.
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+          batch_size: 50
+        order_inserts: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
+
+settleup:
+  redis-enabled: ${REDIS_ENABLED:true}
+  jwt:
+    # Override in any real deployment. Must be at least 32 characters for HS256.
+    secret: ${JWT_SECRET:change-me-in-production-min-32-chars-long!}
+    ttl-hours: 24
+  recurring:
+    cron: "0 0 2 * * *"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.settleup: INFO
