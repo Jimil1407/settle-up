@@ -54,7 +54,7 @@ settleup:
   cors:
     # Set to the exact frontend origin once it is known. The default permits any Render subdomain
     # so the first deploy works before the static site URL has been assigned.
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://settleup-web.onrender.com/**}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://*.onrender.com,https://settleup-web.onrender.com}
 
 logging:
   level:

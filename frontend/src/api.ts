@@ -19,8 +19,10 @@ const TOKEN_KEY = 'settleup.token'
  * expose service hostnames without a scheme and do not support string interpolation), and we
  * prepend https:// ourselves.
  */
-const API_HOST = import.meta.env.VITE_API_HOST as string | undefined
-const API_ROOT = API_HOST ? `https://${API_HOST.replace(/^https?:\/\//, '')}` : ''
+const rawHost = (import.meta.env.VITE_API_HOST as string | undefined)?.trim().replace(/^https?:\/\//, '')
+const isLocal = rawHost?.startsWith('localhost') || rawHost?.startsWith('127.0.0.1')
+const API_HOST = rawHost && !rawHost.includes('.') && !isLocal ? `${rawHost}.onrender.com` : rawHost
+const API_ROOT = API_HOST ? (isLocal ? `http://${API_HOST}` : `https://${API_HOST}`) : ''
 
 /** Absolute URL for an API path, used for links the browser follows directly (e.g. CSV export). */
 export function apiUrl(path: string): string {
