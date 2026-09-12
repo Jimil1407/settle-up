@@ -71,7 +71,7 @@ services:
       # reference each other and the Blueprint would fail to resolve the cycle. The wildcard gets
       # the first deploy working; tighten it to the exact origin afterwards (see README).
       - key: CORS_ALLOWED_ORIGINS
-        value: https://*.onrender.com
+        value: https://settleup-web.onrender.com/**
 
   # ---------------------------------------------------------------- Cache
   - type: keyvalue
