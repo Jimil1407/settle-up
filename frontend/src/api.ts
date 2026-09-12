@@ -24,6 +24,8 @@ const isLocal = rawHost?.startsWith('localhost') || rawHost?.startsWith('127.0.0
 const API_HOST = rawHost && !rawHost.includes('.') && !isLocal ? `${rawHost}.onrender.com` : rawHost
 const API_ROOT = API_HOST ? (isLocal ? `http://${API_HOST}` : `https://${API_HOST}`) : ''
 
+console.log('[SettleUp] API Endpoint configured as:', API_ROOT || '(relative / same-origin)')
+
 /** Absolute URL for an API path, used for links the browser follows directly (e.g. CSV export). */
 export function apiUrl(path: string): string {
   return `${API_ROOT}/api${path}`
